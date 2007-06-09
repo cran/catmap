@@ -46,10 +46,18 @@ seLogOR<-ccse
 comvarlogOR<-ccvar
 }
 if(nlevels(a1$lev)==2){
-weight<-c(tdtweight, ccweight)
-logOR<-c(tdtlogOR, cclogOR)
-seLogOR<-c(tdtse, ccse)
-comvarlogOR<-c(tdtvar, ccvar)
+studyorder<-cbind(1:nrow(a1), a1$study)
+studyorder1<-studyorder[order(studyorder[,2]),]
+weight1<-c(tdtweight, ccweight)
+logOR1<-c(tdtlogOR, cclogOR)
+seLogOR1<-c(tdtse, ccse)
+comvarlogOR1<-c(tdtvar, ccvar)
+studyorder2<-cbind(studyorder1, weight1, logOR1, seLogOR1, comvarlogOR1)
+studyorder3<-studyorder2[order(studyorder2[,1]),]
+weight<-studyorder3[,3]
+logOR<-studyorder3[,4]
+seLogOR<-studyorder3[,5]
+comvarlogOR<-studyorder3[,6]
 }
 
 combinedLogOR<-((sum(weight*logOR))/sum(weight))
@@ -134,7 +142,12 @@ cat(results, sep="\n")
 sink()
 }
 
-return(comvarlogOR, combinedLogOR, combinedOR, combinedSeLogOR, weight, logOR, combinedVarLogOR, combinedChisq, combinedValue, combinedPvalue, lbci, ubci, combinedCI, SeLogOR, lbci.fe, ubci.fe, het.df, chisqHet, combinedHetValue, heterogeneityPvalue, tau2, weight.dsl, logOR.dsl, OR.dsl, seLogOR.dsl, varLogOR.dsl, lbci.dsl, ubci.dsl, ci.dsl, chisq.dsl, value.dsl, pvalue.dsl, studyname, a1, quantilenorm, ci, dataset)
+if(tau2 <=0){
+return(comvarlogOR, combinedLogOR, combinedOR, combinedSeLogOR, weight, logOR, combinedVarLogOR, combinedChisq, combinedValue, combinedPvalue, lbci, ubci, combinedCI, SeLogOR, lbci.fe, ubci.fe, het.df, chisqHet, combinedHetValue, heterogeneityPvalue, tau2, studyname, a1, quantilenorm, ci, dataset) 
+}
+if(tau2 > 0){
+return(comvarlogOR, combinedLogOR, combinedOR, combinedSeLogOR, weight, logOR, combinedVarLogOR, combinedChisq, combinedValue, combinedPvalue, lbci, ubci, combinedCI, SeLogOR, lbci.fe, ubci.fe, het.df, chisqHet, combinedHetValue, heterogeneityPvalue, tau2, studyname, a1, quantilenorm, ci, dataset, weight.dsl, logOR.dsl, OR.dsl, seLogOR.dsl, varLogOR.dsl, lbci.dsl, ubci.dsl, ci.dsl, chisq.dsl, value.dsl, pvalue.dsl)
+}
 }
 
 #sensitivity analysis
@@ -206,12 +219,16 @@ sink()
 
 #random-effects sensitivity
 
+if (re.sense==TRUE & catmapobject$tau2 <=0){
+cat("NOTICE: tau2 is less than or equal to 0;\n no random effects estimates will be calculated.\n")
+}
+
 if (re.sense==TRUE & catmapobject$tau2 > 0){
 srplot<-matrix(0,nrow(catmapobject$a1),3)
 for(r in 1:nrow(catmapobject$a1)){
 sr.weight<-catmapobject$weight[-r]
 sr.logOR<-catmapobject$logOR[-r]
-sr.comvarlogOR<- catmapobject$comvarlogOR[-r]
+sr.comvarlogOR<-catmapobject$comvarlogOR[-r]
 
 sr.combinedLogOR<-((sum(sr.weight*sr.logOR))/sum(sr.weight))
 sr.combinedOR<-exp(sr.combinedLogOR)
@@ -242,7 +259,9 @@ sr.heterogeneityPvalue<-(1-sr.combinedHetValue)
 
 sr.tau2<-((sr.chisqHet-sr.df)/(sum(sr.weight)-(sum(sr.weight^2)/(sum(sr.weight)))))
 
-if (sr.tau2 > 0){
+if (sr.tau2 <=0){
+sr.tau2<-0
+}
 srweight.dsl<-(1/(sr.comvarlogOR+sr.tau2))
 srlogOR.dsl<-((sum(srweight.dsl*sr.logOR))/(sum(srweight.dsl)))
 srOR.dsl<-exp(srlogOR.dsl)
@@ -254,7 +273,6 @@ srci.dsl<-c(srlbci.dsl, srubci.dsl)
 srchisq.dsl<-(((srlogOR.dsl-0)^2)/srvarLogOR.dsl)
 srvalue.dsl<-pchisq(srchisq.dsl, df=1)
 srpvalue.dsl<-(1-srvalue.dsl)
-}
 
 srstudy.removed<-paste("Study Removed =", catmapobject$studyname[r], sep=" ")
 srtable.header<-c("Q Statistic (Heterogeneity) Chi-Square", "Q Statistic (Heterogeneity) p-value", "DerSimonian & Laird Random-Effects OR", "DerSimonian & Laird Random-Effects Lower Bound CI", "DerSimonian & Laird Random-Effects Chi-Square", "DerSimonian & Laird Random-Effects p-value")
@@ -289,6 +307,10 @@ sink()
 ci100<- catmapobject$ci*100
 
 #create fixed-effects sensitivity plots
+if (fe.sense==FALSE & fe.senseplot==TRUE){
+cat("NOTICE: No fixed-efffects sensitivity analyses have been performed. \n Please set fe.sense==TRUE and try again.\n")
+}
+
 if (fe.senseplot==TRUE){
 if(catmapobject$dataset!=catmapdata){
 pdf(file=(paste(catmapobject$dataset, "fixed.effects.sensitivity.plot.pdf", sep=".")))
@@ -320,12 +342,18 @@ segments(sfplot[z,2],sfpstudy[z],sfplot[z,3],sfpstudy[z], bg="black", col="black
 sfpstudyname<-paste("Study Removed:", catmapobject$studyname[z], sep="\n")
 mtext(paste(sfpstudyname),side=2, at=sfpstudy[z], cex=0.80)
 }
-dev.off()
+#dev.off()
 }
 
 ci100<- catmapobject$ci*100
 
 #create random-effects sensitivity plots
+if (re.sense==FALSE & re.senseplot==TRUE){
+cat("NOTICE: No random-efffects sensitivity analyses have been performed. \n Please set re.sense==TRUE and try again.\n")
+}
+if(fe.senseplot==TRUE){
+dev.off()
+}
 if (re.senseplot==TRUE & catmapobject$tau2 > 0){
 if(catmapobject$dataset!=catmapdata){
 pdf(file=(paste(catmapobject$dataset, "random.effects.sensitivity.plot.pdf", sep=".")))
@@ -357,11 +385,11 @@ segments(srplot[y,2],srpstudy[y],srplot[y,3],srpstudy[y], bg="black", col="black
 srpstudyname<-paste("Study Removed:", catmapobject$studyname[y], sep="\n")
 mtext(paste(srpstudyname),side=2, at=srpstudy[y], cex=0.80)
 }
-#dev.off()
+graphics.off()
 }
 }
 
-catmap.cumulative<-function(catmapobject, fe.cumulative, fe.cumplot, re.cumulative, re.cumplot){
+catmap.cumulative<-function(catmapobject, fe.cumulative, re.cumulative, fe.cumplot, re.cumplot){
 
 #fixed-effect cumulative meta analyses
 ci100<- catmapobject$ci*100
@@ -430,6 +458,10 @@ sink()
 
 #random-effect cumulative meta analyses
 
+if(re.cumulative==TRUE & catmapobject$tau2 <= 0){
+cat("NOTICE: tau2 is less than or equal to 0;\n no random effects estimates will be calculated.\n")
+}
+
 if (re.cumulative==TRUE & catmapobject$tau2 > 0){
 crplot<-matrix(0,(nrow(catmapobject$a1)-1),3)
 for(u in 2:nrow(catmapobject$a1)){
@@ -467,7 +499,10 @@ cr.tau2c<-(cr.chisqHet-cr.df)/(sum(cr.weight)-(sum(cr.weight^2)/(sum(cr.weight))
 
 cr.tau2<-max(0,cr.tau2c)
 
-if (cr.tau2 >= 0){
+if (cr.tau2 <=0){
+cr.tau2<-0
+}
+
 crweight.dsl<-(1/(cr.comvarlogOR+cr.tau2))
 crlogOR.dsl<-((sum(crweight.dsl*cr.logOR))/(sum(crweight.dsl)))
 crOR.dsl<-exp(crlogOR.dsl)
@@ -479,7 +514,6 @@ crci.dsl<-c(crlbci.dsl, crubci.dsl)
 crchisq.dsl<-(((crlogOR.dsl-0)^2)/crvarLogOR.dsl)
 crvalue.dsl<-pchisq(crchisq.dsl, df=1)
 crpvalue.dsl<-(1-crvalue.dsl)
-}
 
 crstudy.added<-paste("Study Added =", catmapobject$studyname[u], sep=" ")
 crtable.header<-c("Q Statistic (Heterogeneity) Chi-Square", "Q Statistic (Heterogeneity) p-value", "DerSimonian & Laird Random-Effects OR", "DerSimonian & Laird Random-Effects Lower Bound CI", "DerSimonian & Laird Random-Effects Chi-Square", "DerSimonian & Laird Random-Effects p-value")
@@ -512,6 +546,11 @@ sink()
 }
 
 #create fixed-effects cumulative plots
+
+if(fe.cumulative==FALSE & fe.cumplot==TRUE){
+cat("NOTICE: No fixed-efffects cumulative analyses have been performed.\n Please set fe.cumulative==TRUE and try again.\n")
+}
+
 if (fe.cumplot==TRUE){
 if(catmapobject$dataset!=catmapdata){
 pdf(file=(paste(catmapobject$dataset, "fixed.effects.cumulative.plot.pdf", sep=".")))
@@ -547,6 +586,9 @@ dev.off()
 }
 
 #create random-effects cumulative plots
+if(re.cumulative==FALSE & re.cumplot==TRUE){
+cat("NOTICE: No random-efffects cumulative analyses have been performed. \n Please set re.cumulative==TRUE and try again.\n")
+}
 if (re.cumplot==TRUE & catmapobject$tau2 > 0){
 if(catmapobject$dataset!=catmapdata){
 pdf(file=(paste(catmapobject$dataset, "random.effects.cumulative.plot.pdf", sep=".")))
@@ -579,7 +621,7 @@ segments(crplot[w,2],crpstudy[w],crplot[w,3],crpstudy[w], bg="black", col="black
 crpstudyname<-paste("Study Added:", catmapobject$studyname[w], sep="\n")
 mtext(paste(crpstudyname),side=2, at=crpstudy[w], cex=0.80)
 }
-#dev.off()
+graphics.off()
 }
 }
 
@@ -630,6 +672,10 @@ dev.off()
 
 #create random-effects forest plots 
 
+if(re.forest==TRUE & catmapobject$tau2 <= 0){
+cat("NOTICE: tau2 is less than or equal to 0;\n no random effects estimates will be calculated.\n")
+}
+
 if (re.forest==TRUE & catmapobject$tau2 > 0){
 if(catmapobject$dataset!=catmapdata){
 pdf(file=(paste(catmapobject$dataset, "random.effects.plot.pdf", sep=".")))
@@ -637,8 +683,9 @@ pdf(file=(paste(catmapobject$dataset, "random.effects.plot.pdf", sep=".")))
 if(catmapobject$dataset==catmapdata){
 pdf(file=(paste("catmapdata", "random.effects.plot.pdf", sep=".")))
 }
-dslprop.weight<-(catmapobject$weight.dsl/(sum(catmapobject$weight.dsl))*100)
+dslprop.weight<-(catmapobject$weight.dsl/(sum(catmapobject$weight.dsl))*10)
 dslOR<-c(catmapobject$OR.dsl, exp(catmapobject$logOR))
+OR<-c(catmapobject$combinedOR, exp(catmapobject$logOR))
 rstudy<-1:(nrow(catmapobject$a1)+1)
 rlx<-max((min(catmapobject$lbci.fe)-0.25),0)
 rhx<-max(catmapobject$ubci.fe)+0.25
@@ -662,13 +709,13 @@ mtext("Pooled OR",side=2,at=1, cex=0.80)
 abline(v=1.0)
 limit<-nrow(catmapobject$a1)+1
 counts<-c(1:limit)
-for(i in 2:(nrow(catmapobject$a1)+1)){
-j<-i-1
-points(OR[i],counts[i], pch=22, cex=prop.weight[j], bg="black", col="black")
-segments(catmapobject$lbci.fe[j],counts[i], catmapobject$ubci.fe[j],counts[i], bg="black", col="black")
-mtext(paste(catmapobject$studyname[j]),side=2, at=counts[i], cex=0.80)
+for(e in 2:(nrow(catmapobject$a1)+1)){
+f<-e-1
+points(OR[e],counts[e], pch=22, cex=dslprop.weight[f], bg="black", col="black")
+segments(catmapobject$lbci.fe[f],counts[e], catmapobject$ubci.fe[f],counts[e], bg="black", col="black")
+mtext(paste(catmapobject$studyname[f]),side=2, at=counts[e], cex=0.80)
 }
-#dev.off()
+graphics.off()
 }
 }
 
@@ -689,7 +736,6 @@ minse<-min(fun.se)
 plot(OddsRatio, fun.se, ylim=rev(c(minse,maxse)),log="x", ylab="Standard Error Log OR")
 abline(v=1)
 abline(v=catmapobject$combinedOR, lty=2)
-#dev.off()
+graphics.off()
 }
 }
-
