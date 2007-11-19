@@ -1,9 +1,9 @@
 \name{catmap.cumulative} 
 \alias{catmap.cumulative}
 \title{Cumulative Meta-Analyses and Plots using either Fixed- or Random-Effects} 
-\author{Kristin K. Nicodemus, \email{nicodemusk@mail.nih.gov} or \email{knicodem@jhsph.edu}}
+\author{Kristin K. Nicodemus, \email{kristin.nicodemus@well.ox.ac.uk}}
 \description{ 
-\code{catmap.cumulative} conducts cumulative meta-analyses and creates plots of the ORs and confidence intervals using either fixed- or random-effects analyses.
+\code{catmap.cumulative} conducts cumulative meta-analyses and creates plots of the ORs and confidence intervals using either fixed- or random-effects analyses, and saves text files and plot files to the current working directory (use getwd() to obtain the current working directory). The plots are not created in the R Graphics device.
 } 
 \usage{catmap.cumulative(catmapobject, fe.cumulative, re.cumulative, fe.cumplot, 
 re.cumplot) } 

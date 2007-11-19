@@ -2,6 +2,14 @@ catmap<-function(dataset, ci, printout){
 options(warn=-1)
 data(catmapdata)
 
+#make defaults for catmap of 0.95 for CI and printout = TRUE
+if(missing(ci)){
+ci<-0.95
+}
+if(missing(printout)){
+printout<-TRUE
+}
+
 #read in data from function
 if(dataset!=catmapdata){
 a1<-read.table(dataset, header=T)

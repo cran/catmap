@@ -1,0 +1,7 @@
+name	study	t	nt	caserisk	controlrisk	casenotrisk	controlnotrisk
+Peter,2002	2	0	0	316	338	220	218
+Abrams,2001	2	0	0	710	146	422	96
+Todd,2003	2	0	0	1004	344	233	543
+Yu,2007	2	0	0	3344	434	544	322
+Wei,2007	1	65	32	0	0	0	0
+

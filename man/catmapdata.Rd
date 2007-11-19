@@ -2,7 +2,7 @@
 \alias{catmapdata}
 \docType{data}
 \title{An example data frame for use with catmap}
-\author{Kristin K. Nicodemus, \email{nicodemusk@mail.nih.gov} or \email{knicodem@jhsph.edu}}
+\author{Kristin K. Nicodemus, \email{kristin.nicodemus@well.ox.ac.uk}}
 \description{
 A file for use with \code{catmap} containing simulated data.
 }

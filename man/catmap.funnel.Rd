@@ -1,16 +1,16 @@
 \name{catmap.funnel} 
 \alias{catmap.funnel}
 \title{Funnel Plots for catmap} 
-\author{Kristin K. Nicodemus, \email{nicodemusk@mail.nih.gov} or \email{knicodem@jhsph.edu}}
+\author{Kristin K. Nicodemus, \email{kristin.nicodemus@well.ox.ac.uk}}
 \description{ 
-\code{catmap.funnel} creates a funnel plot of the individual ORs against the se.
+\code{catmap.funnel} creates a funnel plot of the individual ORs against the se and saves the file to the current working directory (use getwd() to view).  The plots are not created in the R Graphics device.
 } 
 \usage{catmap.funnel(catmapobject, funnel) } 
 \arguments{
 	\item{catmapobject}{The catmap object created by a previous call to catmap}   
 	\item{funnel}{Logical.  Should a funnel plot be produced?  Funnel plots plot standard error of the log ORs against the ORs along with a solid line at 1.0 and a dotted line at the overall pooled OR.  Used to assess publication bias.  Output plot file is saved with the default name of \bold{dataset.funnel.plot.pdf} where dataset is the name of the file given as the first argument to catmap.}
 } 
-\details{\code{catmap.funnel} creates a .pdf file of the funnel plot.
+\details{\code{catmap.funnel} creates a .pdf file of the funnel plot. Plots are not created in the R Graphics device window, but are instead saved to a .pdf file in the current working directory.
 } 
 \seealso{
   \code{\link{catmap}},
