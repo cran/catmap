@@ -1,4 +1,4 @@
-catmap<-function(dataset, ci, printout){
+catmap<-function(dataset, ci, printout, print.all){
 options(warn=-1)
 data(catmapdata)
 
@@ -8,6 +8,9 @@ ci<-0.95
 }
 if(missing(printout)){
 printout<-TRUE
+}
+if(missing(print.all)){
+print.all<-FALSE
 }
 
 #read in data from function
@@ -68,6 +71,13 @@ seLogOR<-studyorder3[,5]
 comvarlogOR<-studyorder3[,6]
 }
 
+#get qnorm values
+alpha<-(1-((1-ci)/2))
+quantilenorm<-qnorm(alpha, 0, 1)
+OR1<-exp(logOR1)
+lbci1<-exp(logOR1-(quantilenorm*seLogOR1))
+ubci1<-exp(logOR1-(quantilenorm*seLogOR1))
+
 combinedLogOR<-((sum(weight*logOR))/sum(weight))
 combinedOR<-exp(combinedLogOR)
 combinedSeLogOR<-(sqrt(1/sum(weight)))
@@ -75,10 +85,6 @@ combinedVarLogOR<-(1/sum(weight))
 combinedChisq<-(((combinedLogOR-0)^2)/combinedVarLogOR)
 combinedValue<-pchisq(combinedChisq, df=1)
 combinedPvalue<-(1-combinedValue)
-
-#get qnorm values
-alpha<-(1-((1-ci)/2))
-quantilenorm<-qnorm(alpha, 0, 1)
 
 lbci<-exp(combinedLogOR-(quantilenorm*combinedSeLogOR))
 ubci<-exp(combinedLogOR+(quantilenorm*combinedSeLogOR))
@@ -106,6 +112,17 @@ results<-rbind(table.header, round(table.fill, digits=5))
 cat("NOTICE: tau2 is less than or equal to 0;\n no random effects estimates will be calculated\n Pooled Estimates\n")
 cat(results, sep="\n")
 cat("\n")
+#print individual studies
+if(print.all==TRUE){
+ind.header<-c("Study", "Fixed-Effects ORs", "Lower Bound CIs", "Upper Bound CIs", "Study Weights")
+dataname<-as.vector(a1$name)
+ind.fill<-data.frame(cbind(dataname, as.list(OR1), as.list(lbci1), as.list(ubci1), as.list(weight)))
+names(ind.fill)<-ind.header
+cat("Individual Study Estimates\n")
+print(ind.fill)
+cat("\n")
+}
+
 }
 
 if (tau2 > 0){
@@ -124,11 +141,22 @@ pvalue.dsl<-(1-value.dsl)
 #print results - print to screen
 
 table.header<-c("Inverse Variance Fixed-Effects OR", "Inverse Variance Fixed-Effects Lower Bound CI", "Inverse Variance Fixed-Effects Upper Bound CI", "Inverse Variance Fixed-Effects Chi-Square", "Inverse Variance Fixed-Effects p-value", "Q Statistic (Heterogeneity) Chi-Square", "Q Statistic (Heterogeneity) p-value", "DerSimonian & Laird Random-Effects OR", "DerSimonian & Laird Random-Effects Lower Bound CI", "DerSimonian & Laird Random-Effects Chi-Square", "DerSimonian & Laird Random-Effects p-value")
-table.fill<-c(combinedOR, combinedCI, combinedChisq, combinedPvalue, chisqHet, heterogeneityPvalue, OR.dsl, ci.dsl, pvalue.dsl)
+table.fill<-c(combinedOR, combinedCI, combinedChisq, combinedPvalue, chisqHet, heterogeneityPvalue, OR.dsl, chisq.dsl, pvalue.dsl)
 results<-rbind(table.header, round(table.fill, digits=5))
 cat("Pooled Estimates\n")
 cat(results, sep="\n")
 cat("\n")
+
+#print individual studies
+if(print.all==TRUE){
+ind.header<-c("Study", "Fixed-Effects ORs", "Lower Bound CIs", "Upper Bound CIs", "Study Weights")
+dataname<-as.vector(a1$name)
+ind.fill<-data.frame(cbind(dataname, as.list(OR1), as.list(lbci1), as.list(ubci1), as.list(weight)))
+names(ind.fill)<-ind.header
+cat("Individual Study Estimates\n")
+print(ind.fill)
+cat("\n")
+}
 
 }
 
@@ -136,19 +164,39 @@ studyname<-a1$name
 
 #print results to file dataset.output.txt
 
-if (printout==TRUE & dataset!=catmapdata){
+if (printout==TRUE & dataset!=catmapdata & print.all==FALSE){
 sink(paste(dataset, "output.txt", sep="."))
 cat("Pooled Estimates\n")
 cat(results, sep="\n")
 sink()
 }
 
-if (printout==TRUE & dataset==catmapdata){
+if (printout==TRUE & dataset==catmapdata & print.all==FALSE){
 sink(paste("catmapdata", "output.txt", sep="."))
 cat("Pooled Estimates\n")
 cat(results, sep="\n")
+
 sink()
 }
+
+if (printout==TRUE & dataset!=catmapdata & print.all==TRUE){
+sink(paste(dataset, "output.txt", sep="."))
+cat("Pooled Estimates\n")
+cat(results, sep="\n")
+cat("Individual Study Estimates\n")
+print(ind.fill)
+sink()
+}
+
+if (printout==TRUE & dataset==catmapdata & print.all==TRUE){
+sink(paste("catmapdata", "output.txt", sep="."))
+cat("Pooled Estimates\n")
+cat(results, sep="\n")
+cat("Individual Study Estimates\n")
+print(ind.fill)
+sink()
+}
+
 
 if(tau2 <=0){
 return(comvarlogOR, combinedLogOR, combinedOR, combinedSeLogOR, weight, logOR, combinedVarLogOR, combinedChisq, combinedValue, combinedPvalue, lbci, ubci, combinedCI, SeLogOR, lbci.fe, ubci.fe, het.df, chisqHet, combinedHetValue, heterogeneityPvalue, tau2, studyname, a1, quantilenorm, ci, dataset) 
