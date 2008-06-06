@@ -5,7 +5,7 @@
 \author{Kristin K. Nicodemus, \email{kristin.nicodemus@well.ox.ac.uk}}
 \description{ 
 \code{catmap} is an R package that conducts fixed-effects (inverse variance) and random-effects (DerSimonian and Laird, 1986) meta-analyses of case-control or family-based (TDT) genetic data; in addition, it performs meta-analyses combining these two types of study designs.  The fixed-effects model was first described by Kazeem and Farrall (2005); the random-effects model is described in Nicodemus (submitted) and saves a text file to the current working directory of all results printed to screen (use getwd() to find cwd).
-} 
+}              
 \usage{catmapobject<-catmap(dataset, ci, printout, print.all) } 
 \arguments{
 	\item{dataset}{A text file containing a header with the following column names: \bold{name, study, t, nt, caserisk, controlrisk, casenotrisk, controlnotrisk} in tab-delimited format.  Note that the header must be exactly as specified and that all cells in the table must have an entry, even if the entry is 0 or missing (NA).  See for example: data(catmapdata). \bold{The dataset argument to catmap should be either the example data or a file containing the data for catmap, not an R object.}
@@ -25,7 +25,8 @@
 \examples{
 \dontrun{
 data(catmapdata) 	
-catmap(catmapdata, 0.95, TRUE, TRUE)
+#Incorrect usage: catmap(catmapdata, 0.95, TRUE, TRUE)
+#Correct usage:
 catmapobject1<-catmap(catmapdata, 0.95, TRUE, TRUE)}}
 \keyword{methods}
 

@@ -4,7 +4,7 @@
 \author{Kristin K. Nicodemus, \email{kristin.nicodemus@well.ox.ac.uk}}
 \description{ 
 \code{catmap.funnel} creates a funnel plot of the individual ORs against the se and saves the file to the current working directory (use getwd() to view).  The plots are not created in the R Graphics device.
-} 
+}         
 \usage{catmap.funnel(catmapobject, funnel) } 
 \arguments{
 	\item{catmapobject}{The catmap object created by a previous call to catmap}   

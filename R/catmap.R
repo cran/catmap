@@ -70,13 +70,13 @@ logOR<-studyorder3[,4]
 seLogOR<-studyorder3[,5]
 comvarlogOR<-studyorder3[,6]
 }
-
+                                        
 #get qnorm values
 alpha<-(1-((1-ci)/2))
 quantilenorm<-qnorm(alpha, 0, 1)
-OR1<-exp(logOR1)
-lbci1<-exp(logOR1-(quantilenorm*seLogOR1))
-ubci1<-exp(logOR1-(quantilenorm*seLogOR1))
+OR1<-exp(logOR)
+lbci1<-exp(logOR-(quantilenorm*seLogOR))
+ubci1<-exp(logOR+(quantilenorm*seLogOR))
 
 combinedLogOR<-((sum(weight*logOR))/sum(weight))
 combinedOR<-exp(combinedLogOR)
@@ -116,7 +116,7 @@ cat("\n")
 if(print.all==TRUE){
 ind.header<-c("Study", "Fixed-Effects ORs", "Lower Bound CIs", "Upper Bound CIs", "Study Weights")
 dataname<-as.vector(a1$name)
-ind.fill<-data.frame(cbind(dataname, as.list(OR1), as.list(lbci1), as.list(ubci1), as.list(weight)))
+ind.fill<-data.frame(cbind(dataname, as.list(exp(studyorder3[,3])), as.list(lbci1), as.list(ubci1), as.list(weight)))
 names(ind.fill)<-ind.header
 cat("Individual Study Estimates\n")
 print(ind.fill)
@@ -140,8 +140,8 @@ pvalue.dsl<-(1-value.dsl)
 
 #print results - print to screen
 
-table.header<-c("Inverse Variance Fixed-Effects OR", "Inverse Variance Fixed-Effects Lower Bound CI", "Inverse Variance Fixed-Effects Upper Bound CI", "Inverse Variance Fixed-Effects Chi-Square", "Inverse Variance Fixed-Effects p-value", "Q Statistic (Heterogeneity) Chi-Square", "Q Statistic (Heterogeneity) p-value", "DerSimonian & Laird Random-Effects OR", "DerSimonian & Laird Random-Effects Lower Bound CI", "DerSimonian & Laird Random-Effects Chi-Square", "DerSimonian & Laird Random-Effects p-value")
-table.fill<-c(combinedOR, combinedCI, combinedChisq, combinedPvalue, chisqHet, heterogeneityPvalue, OR.dsl, chisq.dsl, pvalue.dsl)
+table.header<-c("Inverse Variance Fixed-Effects OR", "Inverse Variance Fixed-Effects Lower Bound CI", "Inverse Variance Fixed-Effects Upper Bound CI", "Inverse Variance Fixed-Effects Chi-Square", "Inverse Variance Fixed-Effects p-value", "Q Statistic (Heterogeneity) Chi-Square", "Q Statistic (Heterogeneity) p-value", "DerSimonian & Laird Random-Effects OR", "DerSimonian & Laird Random-Effects Lower Bound CI", "DerSiminian & Laird Random-Effects Upper Bound CI", "DerSimonian & Laird Random-Effects Chi-Square", "DerSimonian & Laird Random-Effects p-value")
+table.fill<-c(combinedOR, combinedCI, combinedChisq, combinedPvalue, chisqHet, heterogeneityPvalue, OR.dsl, lbci.dsl, ubci.dsl, chisq.dsl, pvalue.dsl)
 results<-rbind(table.header, round(table.fill, digits=5))
 cat("Pooled Estimates\n")
 cat(results, sep="\n")
@@ -331,8 +331,8 @@ srvalue.dsl<-pchisq(srchisq.dsl, df=1)
 srpvalue.dsl<-(1-srvalue.dsl)
 
 srstudy.removed<-paste("Study Removed =", catmapobject$studyname[r], sep=" ")
-srtable.header<-c("Q Statistic (Heterogeneity) Chi-Square", "Q Statistic (Heterogeneity) p-value", "DerSimonian & Laird Random-Effects OR", "DerSimonian & Laird Random-Effects Lower Bound CI", "DerSimonian & Laird Random-Effects Chi-Square", "DerSimonian & Laird Random-Effects p-value")
-srtable.fill<-c(sr.chisqHet, sr.heterogeneityPvalue, srOR.dsl, srci.dsl, srpvalue.dsl)
+srtable.header<-c("Q Statistic (Heterogeneity) Chi-Square", "Q Statistic (Heterogeneity) p-value", "DerSimonian & Laird Random-Effects OR", "DerSimonian & Laird Random-Effects Lower Bound CI", "DerSimonian & Laird Random-Effects Upper Bound CI", "DerSimonian & Laird Random-Effects Chi-Square", "DerSimonian & Laird Random-Effects p-value")
+srtable.fill<-c(sr.chisqHet, sr.heterogeneityPvalue, srOR.dsl, srlbci.dsl, srubci.dsl, srchisq.dsl, srpvalue.dsl)
 sr.results<-rbind(srtable.header, round(srtable.fill, digits=5))
 srvalues<-c(srOR.dsl, srci.dsl)
 srplot[r,]<-srvalues
@@ -572,8 +572,8 @@ crvalue.dsl<-pchisq(crchisq.dsl, df=1)
 crpvalue.dsl<-(1-crvalue.dsl)
 
 crstudy.added<-paste("Study Added =", catmapobject$studyname[u], sep=" ")
-crtable.header<-c("Q Statistic (Heterogeneity) Chi-Square", "Q Statistic (Heterogeneity) p-value", "DerSimonian & Laird Random-Effects OR", "DerSimonian & Laird Random-Effects Lower Bound CI", "DerSimonian & Laird Random-Effects Chi-Square", "DerSimonian & Laird Random-Effects p-value")
-crtable.fill<-c(cr.chisqHet, cr.heterogeneityPvalue, crOR.dsl, crci.dsl, crpvalue.dsl)
+crtable.header<-c("Q Statistic (Heterogeneity) Chi-Square", "Q Statistic (Heterogeneity) p-value", "DerSimonian & Laird Random-Effects OR", "DerSimonian & Laird Random-Effects Lower Bound CI", "DerSimonian & Laird Random-Effects Upper Bound CI", "DerSimonian & Laird Random-Effects Chi-Square", "DerSimonian & Laird Random-Effects p-value")
+crtable.fill<-c(cr.chisqHet, cr.heterogeneityPvalue, crOR.dsl, crlbci.dsl, crubci.dsl, crchisq.dsl, crpvalue.dsl)
 cr.results<-rbind(crtable.header, round(crtable.fill, digits=5))
 crvalues<-c(crOR.dsl, crci.dsl)
 crplot[v,]<-crvalues

@@ -1,6 +1,6 @@
 \name{catmapdata}
 \alias{catmapdata}
-\docType{data}
+\docType{data}                    
 \title{An example data frame for use with catmap}
 \author{Kristin K. Nicodemus, \email{kristin.nicodemus@well.ox.ac.uk}}
 \description{
