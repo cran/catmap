@@ -116,7 +116,7 @@ cat("\n")
 if(print.all==TRUE){
 ind.header<-c("Study", "Fixed-Effects ORs", "Lower Bound CIs", "Upper Bound CIs", "Study Weights")
 dataname<-as.vector(a1$name)
-ind.fill<-data.frame(cbind(dataname, as.list(exp(studyorder3[,3])), as.list(lbci1), as.list(ubci1), as.list(weight)))
+ind.fill<-data.frame(cbind(dataname, as.list(exp(logOR)), as.list(lbci1), as.list(ubci1), as.list(weight)))
 names(ind.fill)<-ind.header
 cat("Individual Study Estimates\n")
 print(ind.fill)
@@ -519,9 +519,9 @@ cat("NOTICE: tau2 is less than or equal to 0;\n no random effects estimates will
 }
 
 if (re.cumulative==TRUE & catmapobject$tau2 > 0){
-crplot<-matrix(0,(nrow(catmapobject$a1)-1),3)
-for(u in 2:nrow(catmapobject$a1)){
-v<-u-1
+crplot<-matrix(0,nrow(catmapobject$a1),3)
+for(u in 1:nrow(catmapobject$a1)){
+#v<-u-1
 cr.weight<- catmapobject$weight[1:u]
 cr.logOR<- catmapobject$logOR[1:u]
 cr.comvarlogOR<- catmapobject$comvarlogOR[1:u]
@@ -555,9 +555,9 @@ cr.tau2c<-(cr.chisqHet-cr.df)/(sum(cr.weight)-(sum(cr.weight^2)/(sum(cr.weight))
 
 cr.tau2<-max(0,cr.tau2c)
 
-if (cr.tau2 <=0){
-cr.tau2<-0
-}
+#if (cr.tau2 <=0){
+#cr.tau2<-0
+#}
 
 crweight.dsl<-(1/(cr.comvarlogOR+cr.tau2))
 crlogOR.dsl<-((sum(crweight.dsl*cr.logOR))/(sum(crweight.dsl)))
@@ -570,14 +570,25 @@ crci.dsl<-c(crlbci.dsl, crubci.dsl)
 crchisq.dsl<-(((crlogOR.dsl-0)^2)/crvarLogOR.dsl)
 crvalue.dsl<-pchisq(crchisq.dsl, df=1)
 crpvalue.dsl<-(1-crvalue.dsl)
+#added } here
+
+#crOR.dsl[1]<-exp(catmapobject$logOR[1])
+#crlbci.dsl[1]<-catmapobject$lbci.fe[1]
+#crubci.dsl[1]<-catmapobject$ubci.fe[1]
 
 crstudy.added<-paste("Study Added =", catmapobject$studyname[u], sep=" ")
 crtable.header<-c("Q Statistic (Heterogeneity) Chi-Square", "Q Statistic (Heterogeneity) p-value", "DerSimonian & Laird Random-Effects OR", "DerSimonian & Laird Random-Effects Lower Bound CI", "DerSimonian & Laird Random-Effects Upper Bound CI", "DerSimonian & Laird Random-Effects Chi-Square", "DerSimonian & Laird Random-Effects p-value")
 crtable.fill<-c(cr.chisqHet, cr.heterogeneityPvalue, crOR.dsl, crlbci.dsl, crubci.dsl, crchisq.dsl, crpvalue.dsl)
 cr.results<-rbind(crtable.header, round(crtable.fill, digits=5))
 crvalues<-c(crOR.dsl, crci.dsl)
-crplot[v,]<-crvalues
+crplot[u,]<-crvalues
+crplot[1,1]<-exp(catmapobject$logOR[1])
+crplot[1,2]<-catmapobject$lbci.fe[1]
+crplot[1,3]<-catmapobject$ubci.fe[1]
+
 cat("Random Effects Cumulative Meta-Analysis\n")
+cat("The first study will NOT have estimates - this is because the random\neffects estimates are not defined for a single study\n")
+
 cat(crstudy.added, cr.results, sep="\n")
 cat("\n")
 
@@ -586,6 +597,7 @@ cat("\n")
 if(catmapobject$dataset!=catmapdata){
 sink(paste(catmapobject$dataset, "random.effects.cumulative.txt", sep="."), append=TRUE)
 cat("Random Effects Cumulative Meta-Analysis\n")
+cat("The first study will NOT have estimates - this is because the random\neffects estimates are not defined for a single study\n")
 cat(crstudy.added, cr.results, sep="\n")
 cat("\n")
 sink()
@@ -594,6 +606,7 @@ sink()
 if(catmapobject$dataset==catmapdata){
 sink(paste("catmapdata", "random.effects.cumulative.txt", sep="."), append=TRUE)
 cat("Random Effects Cumulative Meta-Analysis\n")
+cat("The first study will NOT have estimates - this is because the random\neffects estimates are not defined for a single study\n")
 cat(crstudy.added, cr.results, sep="\n")
 cat("\n")
 sink()
@@ -615,7 +628,7 @@ if(catmapobject$dataset==catmapdata){
 pdf(file=(paste("catmapdata", "fixed.effects.cumulative.plot.pdf", sep=".")))
 }
 cfpstudy<-c(1:nrow(catmapobject$a1))
-cfplx<-max((min(cfplot[,2])-0.25),0)
+cfplx<-max((min(cfplot[,2])-0.25),0.1)
 cfphx<-max(cfplot[,3])+0.25
 cfply<-1-0.5
 cfphy<-max(cfpstudy)+0.5
@@ -652,10 +665,11 @@ pdf(file=(paste(catmapobject$dataset, "random.effects.cumulative.plot.pdf", sep=
 if(catmapobject$dataset==catmapdata){
 pdf(file=(paste("catmapdata", "random.effects.cumulative.plot.pdf", sep=".")))
 }
-crpstudy<-c(1:(nrow(catmapobject$a1)-1))
-crplx<-max((min(crplot[,2])-0.25),0)
+crpstudy<-c(1:nrow(catmapobject$a1))
+crplx<-max((min(crplot[,2])-0.25),0.1)
 crphx<-max(crplot[,3])+0.25
-crply<-min(crpstudy)-0.5
+#crply<-min(crpstudy)-0.5
+crply<-1-0.5
 crphy<-max(crpstudy)+0.5
 mar1<-c(5.1, 7.1, 4.1, 2.1)
 las1<-1
@@ -670,8 +684,7 @@ crpydummy[2]<- crply
 xtitle<-paste("OR (", ci100, "% CI)")
 plot(crpdummy, crpydummy, type="n", log="x", ylab="", ylim=rev(c(crply, crphy)), yaxt="n", xlab=xtitle, main="Cumulative Meta-Analysis: \n DerSimonian & Laird (Random-Effects) ORs")
 abline(v=1.0)
-for(w in 1:(nrow(catmapobject$a1)-1)){
-q<-w+1
+for(w in 1:nrow(catmapobject$a1)){
 points(crplot[w,1],crpstudy[w], pch=22, bg="black", col="black")
 segments(crplot[w,2],crpstudy[w],crplot[w,3],crpstudy[w], bg="black", col="black")
 crpstudyname<-paste("Study Added:", catmapobject$studyname[w], sep="\n")
@@ -695,7 +708,7 @@ pdf(file=(paste("catmapdata", "fixed.effects.plot.pdf", sep=".")))
 prop.weight<-(catmapobject$weight/(sum(catmapobject$weight))*10)
 OR<-c(catmapobject$combinedOR, exp(catmapobject$logOR))
 study<-1:(nrow(catmapobject$a1)+1)
-lx<-max((min(catmapobject$lbci.fe)-0.25),0)
+lx<-max((min(catmapobject$lbci.fe)-0.25),0.1)
 hx<-max(catmapobject$ubci.fe)+0.25
 ly<-(1-0.5)
 hy<-(length(catmapobject$study)+ 1.5)
@@ -743,7 +756,7 @@ dslprop.weight<-(catmapobject$weight.dsl/(sum(catmapobject$weight.dsl))*10)
 dslOR<-c(catmapobject$OR.dsl, exp(catmapobject$logOR))
 OR<-c(catmapobject$combinedOR, exp(catmapobject$logOR))
 rstudy<-1:(nrow(catmapobject$a1)+1)
-rlx<-max((min(catmapobject$lbci.fe)-0.25),0)
+rlx<-max((min(catmapobject$lbci.fe)-0.25),0.1)
 rhx<-max(catmapobject$ubci.fe)+0.25
 rly<-(1-0.5)
 rhy<-(length(catmapobject$study)+1.5)
